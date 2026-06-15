@@ -4,6 +4,16 @@ This file is for AI coding assistants (Claude, Copilot, Cursor, etc.) and
 automated tooling. It describes the project layout, key abstractions,
 contribution conventions, and common tasks.
 
+## Install
+
+```bash
+pip install statguard
+uv add statguard
+curl -sSfL https://raw.githubusercontent.com/Mullassery/statguard/main/install.sh | sh
+```
+
+Full install guide: [INSTALL.md](INSTALL.md)
+
 ---
 
 ## What this project is

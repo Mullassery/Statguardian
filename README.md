@@ -6,6 +6,12 @@
 [![PyPI](https://img.shields.io/pypi/v/statguard)](https://pypi.org/project/statguard)
 [![Rust](https://img.shields.io/badge/built%20with-Rust-orange.svg)](https://www.rust-lang.org)
 
+```bash
+pip install statguard                                              # pip
+uv add statguard                                                   # uv
+curl -sSfL https://raw.githubusercontent.com/Mullassery/statguard/main/install.sh | sh  # curl
+```
+
 StatGuard compiles a **declarative data contract DSL** into an optimised columnar execution plan, then validates your datasets — schema, quality rules, statistical drift, and anomalies — across every major data format and lakehouse table format, from a single definition.
 
 **Python is the frontend. Rust is the engine.**
@@ -52,16 +58,12 @@ See [BENCHMARKS.md](BENCHMARKS.md) for full numbers, scaling table, per-tool met
 ## Install
 
 ```bash
-pip install statguard          # pip
-
-uv add statguard               # uv (recommended)
-
-# from source  (Rust ≥ 1.75 + maturin required)
-curl -sSf https://sh.rustup.rs | sh
-pip install maturin
-git clone https://github.com/Mullassery/statguard.git && cd statguard
-maturin develop --release
+pip install statguard
+uv add statguard
+curl -sSfL https://raw.githubusercontent.com/Mullassery/statguard/main/install.sh | sh
 ```
+
+See [INSTALL.md](INSTALL.md) for source builds (Rust required) and verification steps.
 
 ---
 
