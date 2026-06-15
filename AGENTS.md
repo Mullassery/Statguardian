@@ -61,7 +61,10 @@ statguard/
 │   │       └── hll.rs            HyperLogLog cardinality estimator (precision=14)
 │   │
 │   ├── statguard-io/             data ingestion
-│   │   └── src/lib.rs            DataReader (parquet/csv/json/ipc), StreamingBatcher, RowBuffer
+│   │   └── src/
+│   │       ├── lib.rs            DataReader (parquet/csv/json/ipc/avro/orc), StreamingBatcher, RowBuffer
+│   │       ├── delta.rs          DeltaReader — transaction log replay, time-travel by version/timestamp
+│   │       └── iceberg.rs        IcebergReader — v1/v2 metadata, snapshot/ref/timestamp time-travel
 │   │
 │   ├── statguard-metrics/        report generation
 │   │   └── src/
@@ -77,7 +80,7 @@ statguard/
 │       └── _cli.py               `statguard validate / check` CLI
 │
 └── tests/
-    └── integration_test.rs       25 end-to-end tests
+    └── integration_test.rs       30 end-to-end + unit tests
 ```
 
 ---
@@ -103,6 +106,12 @@ ExecutionDag  (ordered DagNode list, grouped by column)
   │
   ▼
 ValidationReport  → JSON / Prometheus / ExecutionSummary
+
+Data ingestion (statguard-io):
+  DataReader::read_file()  — auto-detects format from path extension or directory structure
+    ├─ .parquet / .csv / .json / .ndjson / .ipc / .arrow / .avro / .orc  — file-based
+    ├─ dir with _delta_log/  → DeltaReader (transaction log replay)
+    └─ dir with metadata/    → IcebergReader (v1/v2 metadata + manifest parsing)
 ```
 
 ---
@@ -132,11 +141,20 @@ ValidationReport  → JSON / Prometheus / ExecutionSummary
 3. Parse in `parser/mod.rs` `parse_stat_fn()`.
 4. Implement in `stats/src/drift.rs` `compute_stat()`.
 
+### Add a new file format reader
+
+1. Add a `read_<format>()` method to `DataReader` in `crates/statguard-io/src/lib.rs`.
+2. Add the extension to the `match` in `DataReader::read_file()`.
+3. If it's a directory-based format (like Delta/Iceberg), add detection logic before the extension match.
+4. Add a Python binding in `crates/statguard-py/src/lib.rs` if needed.
+5. Update `AGENTS.md` IO layout and `README.md` supported formats table.
+
 ### Add a Python binding for a new feature
 
 All Python-visible types/functions are in `crates/statguard-py/src/lib.rs`.
 Add a `#[pyfunction]` or method to `#[pymethods]`, then register it in the
 `#[pymodule]` function at the bottom of the file.
+Re-export from `python/statguard/__init__.py`.
 
 ---
 
@@ -181,6 +199,21 @@ When the Python API accepts or returns a DataFrame it uses `pyo3-polars`'s
 `PyDataFrame` to bridge between Python Polars and the Rust polars crate.
 
 The CLI entry point is `statguard._cli:main`, registered in `pyproject.toml`.
+
+### Current public API (all in `crates/statguard-py/src/lib.rs`)
+
+| Symbol | Kind | Description |
+|---|---|---|
+| `DataContract` | class | Compiled contract; `.from_dsl()` / `.from_file()` |
+| `ValidationReport` | class | Result object with violations, drift, profiles, health |
+| `execute(contract, df, reference)` | fn | Validate a Polars DataFrame |
+| `execute_file(contract, path, reference_path)` | fn | Validate any file format |
+| `execute_streaming(contract, path, batch_size)` | fn | Micro-batch streaming validation |
+| `execute_delta(contract, path, version, ...)` | fn | Delta Lake — current or versioned snapshot |
+| `compare_delta_versions(contract, path, ref_ver, cur_ver)` | fn | Delta drift comparison |
+| `execute_iceberg(contract, path, snapshot_id, ...)` | fn | Iceberg — current or snapshot |
+| `list_iceberg_snapshots(path)` | fn | List Iceberg snapshots as list[dict] |
+| `validate_dsl(dsl)` | fn | Syntax-check DSL without executing |
 
 ---
 

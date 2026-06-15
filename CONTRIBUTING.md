@@ -17,8 +17,8 @@ the conventions we follow, and the review process.
 ## Quick setup
 
 ```bash
-git clone https://github.com/Mullassery/StatGuard.git
-cd StatGuard
+git clone https://github.com/Mullassery/statguard.git
+cd statguard
 
 # Build and test the Rust crates
 cargo test --workspace --exclude statguard
@@ -70,15 +70,16 @@ After editing:
 
 ## Pull request checklist
 
-- [ ] `cargo test --workspace --exclude statguard` passes
+- [ ] `cargo test --workspace --exclude statguard` passes (currently 30 tests)
 - [ ] `cargo clippy --workspace` has no warnings
 - [ ] `cargo fmt --all --check` passes
 - [ ] New feature has at least one new test
 - [ ] CHANGELOG.md updated under `[Unreleased]`
+- [ ] If a new file format was added: `AGENTS.md` IO layout and `README.md` format table updated
 
 ## Reporting bugs
 
-Open an issue at <https://github.com/Mullassery/StatGuard/issues> with:
+Open an issue at <https://github.com/Mullassery/statguard/issues> with:
 
 - StatGuard version
 - Minimal reproducing DSL and DataFrame
