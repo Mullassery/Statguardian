@@ -20,19 +20,19 @@ StatGuard compiles a **declarative data contract DSL** into an optimised columna
 
 ## Why StatGuard?
 
-| | pandera | Great Expectations | WhyLogs | **StatGuard** |
-|---|---|---|---|---|
-| Performance | Python/pandas | Python-heavy | Python | **Rust — 13–25× faster** |
-| Schema validation | ✓ | ✓ | ✗ | ✓ |
-| Quality rules | ✓ | ✓ | ✗ | ✓ |
-| Drift detection (PSI + KS) | ✗ | ✗ | ✓ | ✓ |
-| Anomaly detection | ✗ | partial | partial | ✓ |
-| Delta Lake | ✗ | ✗ | ✗ | ✓ |
-| Apache Iceberg | ✗ | ✗ | ✗ | ✓ |
-| Avro / ORC | ✗ | partial | ✗ | ✓ |
-| Streaming support | ✗ | ✗ | partial | ✓ |
-| Single contract DSL | ✗ | ✗ | ✗ | ✓ |
-| pip / uv install | ✓ | ✓ | ✓ | ✓ |
+| | Pydantic v2 | pandera | Great Expectations | WhyLogs | **StatGuard** |
+|---|---|---|---|---|---|
+| Performance | Row-by-row Python | Python/pandas | Python-heavy | Python | **Rust — 13–25× faster** |
+| Schema / type validation | ✓ | ✓ | ✓ | ✗ | ✓ |
+| Tabular quality rules | ✗ | ✓ | ✓ | ✗ | ✓ |
+| Drift detection (PSI + KS) | ✗ | ✗ | ✗ | ✓ | ✓ |
+| Anomaly detection | ✗ | ✗ | partial | partial | ✓ |
+| Delta Lake | ✗ | ✗ | ✗ | ✗ | ✓ |
+| Apache Iceberg | ✗ | ✗ | ✗ | ✗ | ✓ |
+| Avro / ORC | ✗ | ✗ | partial | ✗ | ✓ |
+| Streaming support | ✗ | ✗ | ✗ | partial | ✓ |
+| Single contract DSL | ✗ | ✗ | ✗ | ✗ | ✓ |
+| pip / uv install | ✓ | ✓ | ✓ | ✓ | ✓ |
 
 ---
 
@@ -40,18 +40,20 @@ StatGuard compiles a **declarative data contract DSL** into an optimised columna
 
 **100 000 rows × 4 columns** · 5 checks (not_null · type · range · regex · uniqueness) · best-of-7 · Apple M-series:
 
-| Tool | Best | Median | vs pandera | vs Great Expectations |
-|---|---|---|---|---|
-| **StatGuard 0.1** (Rust/Polars) | **~2 ms** | **~2 ms** | **~13× faster** | **~25× faster** |
-| Polars expressions (lower bound) | 1.4 ms | 1.5 ms | 19× faster | 36× faster |
-| Pure Python loops | 11.5 ms | 11.8 ms | 2.3× faster | 4.3× faster |
-| **pandera 0.31** (pandas) | **26.5 ms** | **26.6 ms** | 1× baseline | 1.9× faster |
-| **Great Expectations 1.18** (pandas) | **49.8 ms** | **50.4 ms** | 1.9× slower | 1× baseline |
+| Tool | Best | vs StatGuard |
+|---|---|---|
+| **StatGuard 0.1** (Rust/Polars) | **2.0 ms** | baseline |
+| Pure Python loops | 11.5 ms | 5.8× slower |
+| pandera 0.31 (pandas) | 26.5 ms | 13× slower |
+| **Pydantic v2** (TypeAdapter bulk) | **43.5 ms** | **22× slower** |
+| **Pydantic v2** (row-by-row) | **46.2 ms** | **23× slower** |
+| Great Expectations 1.18 | 50.4 ms | 25× slower |
 
-> Great Expectations runs 32 metrics internally for 5 expectations — that metric
-> pipeline overhead explains the ~2× gap vs pandera and ~25× gap vs StatGuard.
+> Pydantic and Great Expectations land in the same performance tier (~43–50 ms).
+> Pydantic allocates one Python object per row regardless of batch size —
+> StatGuard never touches individual rows, operating on entire Arrow columns.
 
-See [BENCHMARKS.md](BENCHMARKS.md) for full numbers, scaling table, per-tool methodology, and reproduce instructions.
+See [BENCHMARKS.md](BENCHMARKS.md) for full numbers, scaling table, per-tool methodology, and reproduce steps.
 
 ---
 
