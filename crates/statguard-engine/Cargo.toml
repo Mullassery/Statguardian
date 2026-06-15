@@ -1,0 +1,22 @@
+[package]
+name        = "statguard-engine"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "High-performance execution engine for StatGuard contracts (batch + streaming)"
+
+[dependencies]
+statguard-core       = { path = "../statguard-core" }
+statguard-validators = { path = "../statguard-validators" }
+statguard-stats      = { path = "../statguard-stats" }
+statguard-metrics    = { path = "../statguard-metrics" }
+statguard-io         = { path = "../statguard-io" }
+polars               = { workspace = true }
+rayon                = { workspace = true }
+serde                = { workspace = true }
+serde_json           = { workspace = true }
+thiserror            = { workspace = true }
+anyhow               = { workspace = true }
+log                  = { workspace = true }
+regex                = { workspace = true }

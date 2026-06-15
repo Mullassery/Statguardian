@@ -1,0 +1,17 @@
+[package]
+name        = "statguard-metrics"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "Report generation and observability output for StatGuard"
+
+[dependencies]
+statguard-core       = { path = "../statguard-core" }
+statguard-validators = { path = "../statguard-validators" }
+statguard-stats      = { path = "../statguard-stats" }
+serde                = { workspace = true }
+serde_json           = { workspace = true }
+thiserror            = { workspace = true }
+chrono               = { workspace = true }
+uuid                 = { workspace = true }

@@ -1,0 +1,65 @@
+[workspace]
+members = [
+    "crates/statguard-core",
+    "crates/statguard-engine",
+    "crates/statguard-validators",
+    "crates/statguard-stats",
+    "crates/statguard-io",
+    "crates/statguard-metrics",
+    "crates/statguard-py",
+    "tests",
+]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+authors = ["Georgi Mammen Mullassery <mullassery@gmail.com>"]
+license = "MIT"
+repository = "https://github.com/Mullassery/StatGuard"
+
+[workspace.dependencies]
+# Data processing
+polars = { version = "0.44", features = [
+    "lazy", "parquet", "csv", "json", "ipc",
+    "strings", "regex", "dtype-date", "dtype-datetime",
+    "describe", "rolling_window", "rank", "moment",
+    "is_unique", "is_in", "cum_agg", "dynamic_group_by",
+] }
+
+# Parsing
+pest    = "2.7"
+pest_derive = "2.7"
+
+# Serialization
+serde      = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Error handling
+thiserror = "1.0"
+anyhow    = "1.0"
+
+# Concurrency
+rayon = "1.10"
+
+# Utilities
+regex   = "1.10"
+chrono  = { version = "0.4", features = ["serde"] }
+indexmap = { version = "2.0", features = ["serde"] }
+uuid    = { version = "1.6", features = ["v4", "serde"] }
+log     = "0.4"
+env_logger = "0.11"
+
+# Python bindings
+pyo3          = { version = "0.21", features = ["extension-module", "abi3-py38"] }
+pyo3-polars   = { version = "0.15", features = ["derive"] }
+
+[profile.release]
+opt-level     = 3
+lto           = true
+codegen-units = 1
+panic         = "abort"
+
+[profile.release-python]
+inherits      = "release"
+strip         = "symbols"

@@ -1,0 +1,14 @@
+[package]
+name        = "statguard-io"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "Data ingestion layer for StatGuard (Parquet, Arrow IPC, CSV, JSON, streaming)"
+
+[dependencies]
+statguard-core = { path = "../statguard-core" }
+polars         = { workspace = true }
+serde          = { workspace = true }
+thiserror      = { workspace = true }
+anyhow         = { workspace = true }

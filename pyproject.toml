@@ -1,0 +1,52 @@
+[build-system]
+requires      = ["maturin>=1.7,<2.0"]
+build-backend = "maturin"
+
+[project]
+name            = "statguard"
+version         = "0.1.0"
+description     = "High-performance data quality, validation, and drift monitoring — Rust engine with Python API"
+authors         = [{ name = "Georgi Mammen Mullassery", email = "mullassery@gmail.com" }]
+license         = { text = "MIT" }
+readme          = "README.md"
+requires-python = ">=3.8"
+keywords        = ["data-quality", "data-validation", "drift-detection", "schema-validation", "rust"]
+classifiers     = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Rust",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Topic :: Software Development :: Quality Assurance",
+]
+dependencies    = [
+    "polars>=0.20",
+]
+
+[project.optional-dependencies]
+pandas = ["pandas>=1.5", "pyarrow>=10"]
+dev    = ["pytest>=7", "maturin>=1.7", "polars>=0.20", "pandas>=1.5", "pyarrow>=10"]
+
+[project.urls]
+Homepage      = "https://github.com/Mullassery/StatGuard"
+Repository    = "https://github.com/Mullassery/StatGuard"
+Documentation = "https://github.com/Mullassery/StatGuard#readme"
+"Bug Tracker" = "https://github.com/Mullassery/StatGuard/issues"
+
+[project.scripts]
+statguard = "statguard._cli:main"
+
+[tool.maturin]
+manifest-path    = "crates/statguard-py/Cargo.toml"
+python-source    = "python"
+module-name      = "statguard._statguard"
+features         = ["pyo3/extension-module"]
+profile          = "release"
+strip            = true
