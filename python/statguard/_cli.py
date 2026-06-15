@@ -1,9 +1,18 @@
 """
 statguard CLI — validate data files against contracts from the terminal.
 
+Supports local files, Delta Lake, and Apache Iceberg tables.
+For cloud storage (S3/GCS/Azure), SQL databases, and Spark, use the Python API.
+
 Usage:
-    statguard validate --contract contract.sg --file data.parquet [--reference ref.parquet]
-    statguard check   --contract contract.sg                       # syntax-check DSL only
+    statguard validate --contract contract.sg --file data.parquet [OPTIONS]
+    statguard check   --contract contract.sg
+
+Supported file formats:
+    Parquet, CSV, JSON, Avro, ORC, Arrow IPC, Delta Lake (_delta_log/), Iceberg (metadata/)
+
+For more information: statguard --help
+Full documentation: https://github.com/Mullassery/statguard/blob/main/docs/CLI.md
 """
 
 import argparse
@@ -18,16 +27,53 @@ def main() -> None:
     sub = parser.add_subparsers(dest="command")
 
     # statguard validate
-    validate = sub.add_parser("validate", help="Validate a data file against a contract")
-    validate.add_argument("--contract", required=True, help="Path to .sg DSL file")
-    validate.add_argument("--file",     required=True, help="Path to data file (parquet/csv/json/ipc)")
-    validate.add_argument("--reference", default=None, help="Optional reference data file for drift")
-    validate.add_argument("--format",   choices=["summary", "json", "prometheus"], default="summary")
-    validate.add_argument("--fail-on-warning", action="store_true")
+    validate = sub.add_parser(
+        "validate",
+        help="Validate a data file against a contract",
+        description="Validate data against a StatGuard contract. Supports Parquet, CSV, JSON, Avro, ORC, Arrow IPC, Delta Lake, and Iceberg."
+    )
+    validate.add_argument(
+        "--contract",
+        required=True,
+        metavar="PATH",
+        help="Path to .sg DSL contract file"
+    )
+    validate.add_argument(
+        "--file",
+        required=True,
+        metavar="PATH",
+        help="Path to data file or table directory (auto-detected format: parquet/csv/json/avro/orc/ipc/_delta_log/metadata)"
+    )
+    validate.add_argument(
+        "--reference",
+        default=None,
+        metavar="PATH",
+        help="Optional reference data file for drift detection (same formats as --file)"
+    )
+    validate.add_argument(
+        "--format",
+        choices=["summary", "json", "prometheus"],
+        default="summary",
+        help="Output format (default: summary). Use 'json' for parsing, 'prometheus' for scraping."
+    )
+    validate.add_argument(
+        "--fail-on-warning",
+        action="store_true",
+        help="Exit with code 1 if any violation found (default: only errors cause failure)"
+    )
 
     # statguard check
-    check = sub.add_parser("check", help="Syntax-check a DSL file only")
-    check.add_argument("--contract", required=True)
+    check = sub.add_parser(
+        "check",
+        help="Syntax-check a DSL contract file",
+        description="Check a StatGuard contract for syntax errors without validating data."
+    )
+    check.add_argument(
+        "--contract",
+        required=True,
+        metavar="PATH",
+        help="Path to .sg DSL contract file"
+    )
 
     args = parser.parse_args()
 

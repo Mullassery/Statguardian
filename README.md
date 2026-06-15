@@ -157,10 +157,12 @@ for d in report.drift_results():
     print(f"{d['column']}.{d['stat']}: drift={d['drift']:.4f}  PSI={d['psi']:.4f}  KS={d['ks_stat']:.4f}")
 ```
 
-### 4. CLI
+### 4. CLI (local files and lakehouse tables)
+
+The CLI validates local files and lakehouse tables. For cloud/SQL/Spark, use the Python API.
 
 ```bash
-# Auto-detect format from path (Parquet, CSV, Delta dir, Iceberg dir, Avro, ORC)
+# Auto-detect format (Parquet, CSV, JSON, Avro, ORC, Arrow IPC, Delta, Iceberg)
 statguard validate --contract orders.sg --file orders.parquet
 statguard validate --contract orders.sg --file /data/orders_delta/
 statguard validate --contract orders.sg --file /data/orders_iceberg/
@@ -168,16 +170,18 @@ statguard validate --contract orders.sg --file /data/orders_iceberg/
 # With drift reference
 statguard validate --contract orders.sg --file today.parquet --reference yesterday.parquet
 
-# Output formats
+# Output formats (summary, JSON, Prometheus)
 statguard validate --contract orders.sg --file data.parquet --format json
 statguard validate --contract orders.sg --file data.parquet --format prometheus
 
-# Fail CI on any violation (exits 1 on failure)
+# Fail CI on any violation
 statguard validate --contract orders.sg --file data.parquet --fail-on-warning
 
-# DSL syntax check
+# DSL syntax check (linting)
 statguard check --contract orders.sg
 ```
+
+→ Full CLI reference: [docs/CLI.md](docs/CLI.md)
 
 ### 5. Streaming
 
