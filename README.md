@@ -3,7 +3,7 @@
 **Rust-native Data Quality, Validation & Statistical Drift Monitoring**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![PyPI](https://img.shields.io/pypi/v/statguard)](https://pypi.org/project/statguard)
+[![Version](https://img.shields.io/badge/version-0.1.0-blue)](https://github.com/Mullassery/statguard/releases)
 [![Rust](https://img.shields.io/badge/built%20with-Rust-orange.svg)](https://www.rust-lang.org)
 
 ```bash
