@@ -206,6 +206,111 @@ Works on: local, YARN, Kubernetes, Databricks, AWS EMR, Google Dataproc, Azure H
 
 ---
 
+## PII detection
+
+Scan any Polars DataFrame for columns that appear to contain personally identifiable information, using two complementary methods: column-name heuristics (instant, zero data access) and regex pattern matching on a sample of string values.
+
+```python
+import polars as pl
+import statguard
+
+df = pl.read_parquet("customers.parquet")
+findings = statguard.scan_pii(df)
+
+print(statguard.pii_report(findings))
+# PII scan — 3 finding(s):
+#
+#   [HIGH]   'email_address' — email (pattern: 1823/2000 values matched)
+#   [MEDIUM] 'phone'         — phone (name: column name suggests PII)
+#   [HIGH]   'ssn'           — ssn (pattern: 998/2000 values matched)
+```
+
+**Detected PII types:** email · phone · SSN · credit card · IP address · date of birth · passport · IBAN · name · address · date of birth · gender · nationality
+
+```python
+# Detailed findings
+for f in findings:
+    print(f.column, f.pii_type, f.risk, f.detection_method)
+
+# Gate a pipeline — fail if high-risk PII found in unexpected columns
+high_risk = [f for f in findings if f.risk == "high" and f.column not in ALLOWED_PII_COLS]
+if high_risk:
+    raise ValueError(f"Unexpected PII: {[f.column for f in high_risk]}")
+```
+
+```python
+# Control sensitivity
+findings = statguard.scan_pii(
+    df,
+    sample_rows=5_000,       # rows to scan for pattern matching (default: 2000)
+    pattern_threshold=0.10,  # fraction that must match to flag (default: 0.05)
+)
+```
+
+---
+
+## Schema evolution detection
+
+Compare two DataFrames and surface structural changes — added columns, removed columns, type changes — before they silently break a downstream pipeline.
+
+```python
+import statguard
+
+yesterday = pl.read_parquet("events_yesterday.parquet")
+today     = pl.read_parquet("events_today.parquet")
+
+changes = statguard.detect_schema_changes(today, yesterday)
+print(statguard.schema_evolution_report(changes))
+# Schema evolution — 2 change(s):
+#
+#   [ERROR]   Column removed: 'legacy_id' (was Int64)
+#   [WARNING] Column retyped: 'amount' Float32 → Float64
+```
+
+**Use as a pipeline gate:**
+
+```python
+# Raises ValueError listing all removed or retyped columns
+statguard.assert_no_breaking_changes(today_df, yesterday_df)
+```
+
+**Customise severity:**
+
+```python
+changes = statguard.detect_schema_changes(
+    today, yesterday,
+    added_severity="warning",   # new columns are warnings (default: info)
+    removed_severity="error",   # removed columns are errors (default)
+    retyped_severity="error",   # type changes are errors (default: warning)
+)
+```
+
+**Pass raw schema dicts instead of DataFrames:**
+
+```python
+changes = statguard.detect_schema_changes(
+    {"id": "Int64", "amount": "Float64"},
+    {"id": "Int64", "amount": "Float32", "legacy_id": "String"},
+)
+```
+
+---
+
+## HTML report
+
+Generate a self-contained, dependency-free HTML report from any `ValidationReport`. Safe to email, commit as a CI artefact, or open offline.
+
+```python
+report = statguard.execute(contract, df)
+
+with open("report.html", "w") as f:
+    f.write(statguard.to_html(report))
+```
+
+The report includes: status badge, health score and grade, violations table (column · check · severity · message), drift results table (reference vs current values, PSI, KS), and column profiles (mean, std, p95, null rate, distinct count).
+
+---
+
 ## Why not just use pandera or Great Expectations?
 
 You can — until the dataset is large, or you need drift detection, or you want one tool that covers files, Delta Lake, Iceberg, cloud storage, and SQL without gluing libraries together.
@@ -238,6 +343,9 @@ See [BENCHMARKS.md](BENCHMARKS.md) for full methodology, scaling table, and repr
 | Apache Iceberg (no Spark) | ✗ | ✗ | ✗ | ✗ | ✓ |
 | Avro / ORC | ✗ | ✗ | partial | ✗ | ✓ |
 | Streaming support | ✗ | ✗ | ✗ | partial | ✓ |
+| PII detection | ✗ | ✗ | ✗ | ✗ | ✓ |
+| Schema evolution detection | ✗ | ✗ | partial | ✗ | ✓ |
+| HTML report | ✗ | ✗ | ✓ | ✗ | ✓ |
 | Single contract DSL | ✗ | ✗ | ✗ | ✗ | ✓ |
 | pip / uv install | ✓ | ✓ | ✓ | ✓ | ✓ |
 
@@ -333,16 +441,17 @@ PSI and KS statistic are always computed alongside every drift rule — no extra
 ```python
 import statguard
 
-# Compile contract
-contract = statguard.DataContract.from_dsl("...")       # from string
+# ── Contract ─────────────────────────────────────────────────────────────────
+contract = statguard.DataContract.from_dsl("...")
 contract = statguard.DataContract.from_file("orders.sg")
+statguard.validate_dsl(dsl_string)   # syntax check only
 
-# Execute (returns ValidationReport)
+# ── Core execution ────────────────────────────────────────────────────────────
 statguard.execute(contract, polars_df, reference=None)
 statguard.execute_file(contract, path, reference_path=None)
 statguard.execute_streaming(contract, path, batch_size=10_000)
 
-# Lakehouse
+# ── Lakehouse ─────────────────────────────────────────────────────────────────
 statguard.execute_delta(contract, table_path, version=None,
                         reference_path=None, reference_version=None)
 statguard.compare_delta_versions(contract, table_path, ref_v, cur_v=None)
@@ -350,15 +459,23 @@ statguard.execute_iceberg(contract, table_path, snapshot_id=None,
                           reference_snapshot=None)
 statguard.list_iceberg_snapshots(table_path)
 
-# Cloud, SQL, Spark
+# ── Cloud, SQL, Spark ─────────────────────────────────────────────────────────
 statguard.execute_cloud(contract, uri, reference_uri=None)
 statguard.execute_sql(contract, connection_string, query, reference_query=None)
 statguard.execute_spark(contract, spark_df, reference_spark_df=None)
 
-# Utilities
-statguard.validate_dsl(dsl_string)  # syntax check only
+# ── PII detection ─────────────────────────────────────────────────────────────
+findings = statguard.scan_pii(df, sample_rows=2_000, pattern_threshold=0.05)
+print(statguard.pii_report(findings))   # human-readable summary
 
-# ValidationReport
+# ── Schema evolution ──────────────────────────────────────────────────────────
+changes = statguard.detect_schema_changes(current_df, reference_df,
+              added_severity="info", removed_severity="error",
+              retyped_severity="warning")
+print(statguard.schema_evolution_report(changes))
+statguard.assert_no_breaking_changes(current_df, reference_df)  # raises on errors
+
+# ── Report output ─────────────────────────────────────────────────────────────
 report.passed            # bool
 report.health_score      # float [0, 1]
 report.grade             # "A" / "B" / "C" / "D" / "F"
@@ -372,6 +489,8 @@ report.to_json()
 report.to_json_pretty()
 report.to_prometheus()
 report.summary()         # one-line string
+
+statguard.to_html(report)   # → self-contained HTML string
 ```
 
 ---
@@ -439,6 +558,9 @@ report.summary()         # one-line string
 | **Kafka / streaming quality** | `execute_streaming()` with micro-batch window |
 | **Prometheus scraping** | `--format prometheus` or `report.to_prometheus()` |
 | **CI data contract tests** | `statguard check` for DSL lint, `validate` for data |
+| **PII audit** | `scan_pii(df)` before writing to a data warehouse or sharing a dataset |
+| **Schema change gate** | `assert_no_breaking_changes(today, yesterday)` in pipeline DAG |
+| **Stakeholder report** | `to_html(report)` → email or attach to CI build artefacts |
 
 ---
 
@@ -462,9 +584,12 @@ statguard/
 │   └── statguard-py/         PyO3 bindings — Rust layer public API
 └── python/
     ├── statguard/
-    │   ├── __init__.py        Re-exports from both layers
+    │   ├── __init__.py        Re-exports from Rust + Python layers
     │   ├── _connectors.py     Cloud (S3/GCS/Azure), SQL (13 connectors), Spark
-    │   └── _cli.py            CLI: validate, check commands
+    │   ├── _cli.py            CLI: validate, check commands
+    │   ├── _pii.py            PII detection (name heuristics + regex patterns)
+    │   ├── _evolution.py      Schema evolution detection and gating
+    │   └── _html.py           Self-contained HTML report generation
     └── docs/
         └── FORMAT_COMPATIBILITY.md
 ```
@@ -526,13 +651,10 @@ All optional features use OSI-approved open-source licenses only. Proprietary dr
 **DSL and rules**
 - [ ] Cross-column rules — `assert amount > 0 when status == "paid"`
 - [ ] Referential integrity — validate foreign keys across two datasets
-- [ ] PII detection — flag columns that look like emails, phone numbers, SSNs
 - [ ] Custom Python validators — plugin hook for rules that require Python logic
-- [ ] Schema evolution detection — warn when columns are added, removed, or retyped
 
 **Output and observability**
 - [ ] OpenTelemetry traces — emit spans per check for distributed tracing
-- [ ] HTML report — self-contained validation report for sharing
 - [ ] DataHub / OpenLineage lineage events on each validation run
 
 **Performance**
@@ -556,4 +678,3 @@ cargo fmt --all
 ## License
 
 MIT © 2026 [Georgi Mammen Mullassery](https://github.com/Mullassery)
-
