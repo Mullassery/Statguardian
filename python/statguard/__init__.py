@@ -7,6 +7,9 @@ A Rust-native engine with a Python-first API for:
 - Data expectations & rules (Great Expectations-like)
 - Statistical drift detection (Evidently AI / WhyLogs-like)
 - Anomaly detection
+- Cross-column conditional assertions in the DSL
+- PII detection, schema evolution, HTML reports
+- Parallel multi-file validation
 
 Quick start::
 
@@ -14,25 +17,25 @@ Quick start::
     import statguard
 
     contract = statguard.DataContract.from_dsl(\"\"\"
-    dataset users {
+    dataset orders {
         schema {
-            id: int, not_null, unique
-            email: string, regex="^[^@]+@[^@]+\\\\.[^@]+$"
-            age: int, between(0, 120)
+            order_id: string, not_null, unique
+            amount:   float,  positive
+            status:   string, not_null, enum=["pending","paid","cancelled"]
         }
         quality {
-            completeness(id) > 0.99
+            completeness(order_id) > 0.999
+            @blocking: assert amount > 0.0 when status == "paid"
         }
         stats {
-            age.mean drift < 0.1
+            amount.mean drift < 0.15
         }
     }
     \"\"\")
 
-    df = pl.read_csv("users.csv")
+    df = pl.read_parquet("orders.parquet")
     report = statguard.execute(contract, df)
     print(report.summary())
-    print(f"Health score: {report.health_score:.2f} ({report.grade})")
 """
 
 from ._statguard import (
@@ -74,6 +77,32 @@ from ._evolution import (
 # HTML report
 from ._html import to_html
 
+# Custom Python validators
+from ._validators import (
+    validator,
+    run_custom_validators,
+    clear_validators,
+    list_validators,
+)
+
+# Parallel multi-file validation
+from ._parallel import (
+    execute_files,
+    execute_files_stream,
+    FileResult,
+)
+
+# GPU / cuDF adapter
+from ._gpu import execute_cudf, is_cudf_available
+
+# Referential integrity
+from ._integrity import (
+    check_referential_integrity,
+    check_all_foreign_keys,
+    integrity_report,
+    IntegrityViolation,
+)
+
 __all__ = [
     # Core
     "DataContract",
@@ -101,8 +130,24 @@ __all__ = [
     "SchemaChange",
     # HTML report
     "to_html",
+    # Custom validators
+    "validator",
+    "run_custom_validators",
+    "clear_validators",
+    "list_validators",
+    # Parallel multi-file
+    "execute_files",
+    "execute_files_stream",
+    "FileResult",
+    # GPU / cuDF
+    "execute_cudf",
+    "is_cudf_available",
+    # Referential integrity
+    "check_referential_integrity",
+    "check_all_foreign_keys",
+    "integrity_report",
+    "IntegrityViolation",
     # Utilities
     "validate_dsl",
     "__version__",
 ]
-
