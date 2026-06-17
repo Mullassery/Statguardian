@@ -408,6 +408,24 @@ dataset <name> {
 | `len(min, max)` | `code: string, len(3, 10)` |
 | `enum=[...]` | `status: string, enum=["A","B","C"]` |
 
+### Cross-column conditional assertions
+
+Validate a column conditionally based on the value of another column — directly in the contract DSL:
+
+```
+quality {
+    @blocking: assert amount > 0.0 when status == "paid"
+    @warning:  assert discount >= 0.0 when status == "paid"
+    assert refund_amount <= amount when status == "refunded"
+}
+```
+
+Syntax: `[@severity:] assert <column> <op> <literal> when <column> <op> <literal>`
+
+Supported literal types: numbers (`0.0`, `-100`), strings (`"paid"`), booleans (`true`, `false`).
+String comparisons support `==` and `!=`; numeric comparisons support all six operators.
+Rows where the `when` condition is false are skipped — only rows meeting the condition are checked.
+
 ### Quality metrics
 `completeness` · `uniqueness` · `validity` · `consistency` · `non_null_rate`
 
@@ -488,6 +506,43 @@ report.to_prometheus()
 report.summary()         # one-line string
 
 statguard.to_html(report)   # → self-contained HTML string
+
+# ── Custom Python validators ──────────────────────────────────────────────────
+@statguard.validator("amount", severity="warning")
+def no_suspiciously_round_numbers(values):
+    failing = [i for i, v in enumerate(values) if v and v == int(v) and v > 10_000]
+    return (failing, f"{len(failing)} suspiciously round value(s)") if failing else None
+
+violations = statguard.run_custom_validators(df)
+print(statguard.list_validators())  # → {"amount": ["no_suspiciously_round_numbers"]}
+statguard.clear_validators()        # remove all registered validators
+
+# ── Parallel multi-file validation ────────────────────────────────────────────
+results = statguard.execute_files(contract, "data/orders_*.parquet", workers=8)
+failed  = [r for r in results if r.failed]
+
+# streaming — react to each result as it completes
+for result in statguard.execute_files_stream(contract, "data/**/*.parquet"):
+    if not result.passed:
+        print(f"FAIL {result.path}: {result.report.summary()}")
+
+# ── GPU / cuDF ────────────────────────────────────────────────────────────────
+import cudf
+gdf    = cudf.read_parquet("s3://bucket/events.parquet")
+report = statguard.execute_cudf(contract, gdf)
+
+# ── Referential integrity ─────────────────────────────────────────────────────
+violations = statguard.check_referential_integrity(
+    orders, customers,
+    foreign_key="customer_id", primary_key="id",
+)
+print(statguard.integrity_report(violations))
+
+# check multiple FK pairs at once
+violations = statguard.check_all_foreign_keys(
+    orders, dims,
+    key_pairs=[("customer_id", "id"), ("product_id", "sku")],
+)
 ```
 
 ---
@@ -646,17 +701,16 @@ All optional features use OSI-approved open-source licenses only. Proprietary dr
 - [ ] GitHub Actions — `statguard-action` for contract validation in CI
 
 **DSL and rules**
-- [ ] Cross-column rules — `assert amount > 0 when status == "paid"`
-- [ ] Referential integrity — validate foreign keys across two datasets
-- [ ] Custom Python validators — plugin hook for rules that require Python logic
+- [ ] Referential integrity in DSL — `foreign_key(customers.id)` enforced at execution time
+- [ ] Cross-dataset joins — validate consistency between two contracts in one run
 
 **Output and observability**
 - [ ] OpenTelemetry traces — emit spans per check for distributed tracing
 - [ ] DataHub / OpenLineage lineage events on each validation run
 
 **Performance**
-- [ ] GPU-accelerated checks via RAPIDS cuDF for very large datasets
-- [ ] Parallel multi-file validation — validate a glob of Parquet files concurrently
+- [ ] Zero-copy GPU path — run columnar checks directly on cuDF without transferring to CPU
+- [ ] Distributed validation — shard large datasets across workers with result merging
 
 ---
 
