@@ -884,9 +884,8 @@ All optional features use OSI-approved open-source licenses only. Proprietary dr
 - [ ] GitHub Actions — `statguard-action` for contract validation in CI
 
 **DSL and rules**
-- [ ] Referential integrity in DSL — `foreign_key(customers.id)` enforced at execution time (Python-level check available)
+- [ ] Referential integrity in DSL — `foreign_key(customers.id)` enforced at execution time (Python-level `check_referential_integrity()` available now)
 - [ ] Cross-dataset joins — validate consistency between two contracts in one run
-- [ ] Conditional quality metrics — `quality { amount > 0 if status == "paid" }` syntax
 
 **Output and observability**
 - [ ] OpenTelemetry traces — emit spans per check for distributed tracing
@@ -915,6 +914,7 @@ cargo fmt --all
 ## License
 
 MIT © 2026 [Georgi Mammen Mullassery](https://github.com/Mullassery)
+
 
 
 
