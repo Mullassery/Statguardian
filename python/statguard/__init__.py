@@ -60,6 +60,20 @@ from ._connectors import (
     execute_cloud,  # s3://, gs://, az:// — thin wrapper around execute_file
 )
 
+# PII detection
+from ._pii import scan_pii, pii_report, PiiFinding
+
+# Schema evolution
+from ._evolution import (
+    detect_schema_changes,
+    schema_evolution_report,
+    assert_no_breaking_changes,
+    SchemaChange,
+)
+
+# HTML report
+from ._html import to_html
+
 __all__ = [
     # Core
     "DataContract",
@@ -76,7 +90,19 @@ __all__ = [
     "execute_sql",
     "execute_spark",
     "execute_cloud",
+    # PII detection
+    "scan_pii",
+    "pii_report",
+    "PiiFinding",
+    # Schema evolution
+    "detect_schema_changes",
+    "schema_evolution_report",
+    "assert_no_breaking_changes",
+    "SchemaChange",
+    # HTML report
+    "to_html",
     # Utilities
     "validate_dsl",
     "__version__",
 ]
+
