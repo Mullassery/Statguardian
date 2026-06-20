@@ -210,7 +210,16 @@ fn parse_literal_value(pair: pest::iterators::Pair<Rule>) -> CoreResult<LiteralV
     let inner = pair.into_inner().next().unwrap();
     Ok(match inner.as_rule() {
         Rule::number         => LiteralValue::Number(inner.as_str().parse::<f64>().unwrap()),
-        Rule::string_literal => LiteralValue::Str(inner.as_str().to_string()),
+        Rule::string_literal => {
+            // string_literal is atomic (`@`) so as_str() includes the surrounding
+            // quotes — strip exactly one leading/trailing `"`.
+            let raw = inner.as_str();
+            let unquoted = raw
+                .strip_prefix('"')
+                .and_then(|s| s.strip_suffix('"'))
+                .unwrap_or(raw);
+            LiteralValue::Str(unquoted.to_string())
+        }
         Rule::boolean        => LiteralValue::Bool(inner.as_str() == "true"),
         other                => return Err(CoreError::Unsupported(format!("unknown literal: {other:?}"))),
     })
