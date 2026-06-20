@@ -69,17 +69,22 @@ _OSS_SCHEMES = {
 }
 
 # Schemes we explicitly decline with a helpful message
+_ORACLE_MSG = (
+    "Oracle requires the proprietary Oracle Instant Client. "
+    "StatGuard only includes open-source connectors. "
+    "See: https://www.oracle.com/database/technologies/instant-client.html"
+)
+_MSSQL_MSG = (
+    "SQL Server's official ODBC driver (msodbcsql) is proprietary on Linux/macOS. "
+    "StatGuard only includes open-source connectors. "
+    "Workaround: export your data to Parquet and use statguard.execute_file()."
+)
 _PROPRIETARY_SCHEMES = {
-    "oracle", "oracle+cx_oracle": (
-        "Oracle requires the proprietary Oracle Instant Client. "
-        "StatGuard only includes open-source connectors. "
-        "See: https://www.oracle.com/database/technologies/instant-client.html"
-    ),
-    "mssql", "mssql+pyodbc", "mssql+pymssql": (
-        "SQL Server's official ODBC driver (msodbcsql) is proprietary on Linux/macOS. "
-        "StatGuard only includes open-source connectors. "
-        "Workaround: export your data to Parquet and use statguard.execute_file()."
-    ),
+    "oracle": _ORACLE_MSG,
+    "oracle+cx_oracle": _ORACLE_MSG,
+    "mssql": _MSSQL_MSG,
+    "mssql+pyodbc": _MSSQL_MSG,
+    "mssql+pymssql": _MSSQL_MSG,
 }
 
 

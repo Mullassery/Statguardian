@@ -430,7 +430,7 @@ fn validate_dsl(dsl: &str) -> PyResult<String> {
 // ── Module definition ─────────────────────────────────────────────────────────
 
 #[pymodule]
-fn statguard(m: &Bound<'_, PyModule>) -> PyResult<()> {
+fn _statguard(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyDataContract>()?;
     m.add_class::<PyValidationReport>()?;
 

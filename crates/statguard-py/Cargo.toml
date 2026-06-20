@@ -7,7 +7,7 @@ license.workspace = true
 description = "Python bindings for StatGuard — Rust-native data quality and drift engine"
 
 [lib]
-name    = "statguard"
+name    = "_statguard"
 crate-type = ["cdylib"]
 
 [dependencies]
