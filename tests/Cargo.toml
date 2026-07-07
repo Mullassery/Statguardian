@@ -8,6 +8,18 @@ publish = false
 name = "integration_test"
 path = "integration_test.rs"
 
+[[test]]
+name = "test_parser"
+path = "test_parser.rs"
+
+[[test]]
+name = "test_validators"
+path = "test_validators.rs"
+
+[[test]]
+name = "test_security"
+path = "test_security.rs"
+
 [dev-dependencies]
 statguard-core    = { path = "../crates/statguard-core" }
 statguard-engine  = { path = "../crates/statguard-engine" }
