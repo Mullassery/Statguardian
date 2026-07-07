@@ -5,17 +5,44 @@ build-backend = "maturin"
 [project]
 name            = "statguardian"
 version         = "0.1.0"
-description     = "High-performance data quality, validation, and drift monitoring — Rust engine with Python API"
+description     = "Fast, declarative data quality framework. Schema validation, data drift detection, anomaly detection, outlier handling. 13x faster than pandera. Supports Pandas, Polars, DuckDB. Automated data contract enforcement for data pipelines."
 authors         = [{ name = "Georgi Mammen Mullassery", email = "mullassery@gmail.com" }]
 license         = { file = "LICENSE" }
 readme          = "README.md"
 requires-python = ">=3.8"
-keywords        = ["data-quality", "data-validation", "drift-detection", "schema-validation", "rust"]
+keywords        = [
+    "data-quality",
+    "data-validation",
+    "schema-validation",
+    "data-testing",
+    "data-contracts",
+    "pandas",
+    "polars",
+    "duckdb",
+    "data-pipeline",
+    "etl",
+    "data-engineering",
+    "data-governance",
+    "drift-detection",
+    "anomaly-detection",
+    "outlier-detection",
+    "automated-testing",
+    "data-integrity",
+    "data-profiling",
+    "statistical-analysis",
+    "python-library",
+    "machine-learning",
+    "mlops",
+    "data-ops",
+    "data-observability"
+]
 classifiers     = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
     "License :: OSI Approved :: MIT License",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
@@ -25,6 +52,8 @@ classifiers     = [
     "Programming Language :: Rust",
     "Topic :: Scientific/Engineering :: Information Analysis",
     "Topic :: Software Development :: Quality Assurance",
+    "Topic :: Database",
+    "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dependencies    = [
     "polars>=0.20",
@@ -89,10 +118,13 @@ all = [
 dev = ["pytest>=7", "maturin>=1.7", "polars>=0.20", "pandas>=1.5", "pyarrow>=10"]
 
 [project.urls]
-Homepage      = "https://github.com/Mullassery/statguardian"
-Repository    = "https://github.com/Mullassery/statguardian"
-Documentation = "https://github.com/Mullassery/statguardian#readme"
-"Bug Tracker" = "https://github.com/Mullassery/statguardian/issues"
+Homepage      = "https://github.com/Mullassery/Statguardian"
+Repository    = "https://github.com/Mullassery/Statguardian"
+Documentation = "https://github.com/Mullassery/Statguardian#readme"
+"Bug Tracker" = "https://github.com/Mullassery/Statguardian/issues"
+Changelog     = "https://github.com/Mullassery/Statguardian/releases"
+"Source Code" = "https://github.com/Mullassery/Statguardian/tree/main"
+Discussions   = "https://github.com/Mullassery/Statguardian/discussions"
 
 [project.scripts]
 statguardian = "statguardian._cli:main"
