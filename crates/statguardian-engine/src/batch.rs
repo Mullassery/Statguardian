@@ -218,7 +218,7 @@ fn execute_node(node: &DagNode, df: &DataFrame) -> Vec<Violation> {
         }
 
         DagNode::QualityMetricCheck { column, metric, op, threshold, severity } => {
-            RuleEngine::evaluate(df, &[statguard_core::ast::QualityRule {
+            RuleEngine::evaluate(df, &[statguardian_core::ast::QualityRule {
                 metric: metric.clone(),
                 column: column.clone(),
                 op: op.clone(),

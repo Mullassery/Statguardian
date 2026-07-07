@@ -319,12 +319,12 @@ fn execute_delta(
     reference_path: Option<&str>,
     reference_version: Option<u64>,
 ) -> PyResult<PyValidationReport> {
-    let df = statguard_io::DeltaReader::read_version(table_path, version)
+    let df = statguardian_io::DeltaReader::read_version(table_path, version)
         .map_err(|e| PyRuntimeError::new_err(format!("Delta read error: {e}")))?;
 
     let ref_df = match (reference_path, reference_version) {
         (Some(rp), rv) => Some(
-            statguard_io::DeltaReader::read_version(rp, rv)
+            statguardian_io::DeltaReader::read_version(rp, rv)
                 .map_err(|e| PyRuntimeError::new_err(format!("Delta reference read error: {e}")))?
         ),
         _ => None,
@@ -354,7 +354,7 @@ fn compare_delta_versions(
     current_version: Option<u64>,
 ) -> PyResult<PyValidationReport> {
     let (reference, current) =
-        statguard_io::DeltaReader::read_two_versions(table_path, reference_version, current_version.unwrap_or(u64::MAX))
+        statguardian_io::DeltaReader::read_two_versions(table_path, reference_version, current_version.unwrap_or(u64::MAX))
             .map_err(|e| PyRuntimeError::new_err(format!("Delta compare error: {e}")))?;
 
     let engine = Engine::new(contract.inner.clone(), contract.dag.clone());
@@ -379,12 +379,12 @@ fn execute_iceberg(
     snapshot_id: Option<i64>,
     reference_snapshot: Option<i64>,
 ) -> PyResult<PyValidationReport> {
-    let df = statguard_io::IcebergReader::read_snapshot(table_path, snapshot_id)
+    let df = statguardian_io::IcebergReader::read_snapshot(table_path, snapshot_id)
         .map_err(|e| PyRuntimeError::new_err(format!("Iceberg read error: {e}")))?;
 
     let ref_df = match reference_snapshot {
         Some(ref_id) => Some(
-            statguard_io::IcebergReader::read_snapshot(table_path, Some(ref_id))
+            statguardian_io::IcebergReader::read_snapshot(table_path, Some(ref_id))
                 .map_err(|e| PyRuntimeError::new_err(format!("Iceberg reference read error: {e}")))?
         ),
         None => None,
@@ -401,7 +401,7 @@ fn execute_iceberg(
 /// parent_snapshot_id, operation.
 #[pyfunction]
 fn list_iceberg_snapshots(table_path: &str, py: Python<'_>) -> PyResult<Vec<PyObject>> {
-    let snapshots = statguard_io::IcebergReader::list_snapshots(table_path)
+    let snapshots = statguardian_io::IcebergReader::list_snapshots(table_path)
         .map_err(|e| PyRuntimeError::new_err(format!("Iceberg error: {e}")))?;
 
     snapshots.iter().map(|s| {

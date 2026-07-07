@@ -29,10 +29,10 @@ impl Engine {
         &self,
         path: &str,
         reference_path: Option<&str>,
-    ) -> Result<ValidationReport, statguard_io::IoError> {
-        let df = statguard_io::DataReader::read_file(path)?;
+    ) -> Result<ValidationReport, statguardian_io::IoError> {
+        let df = statguardian_io::DataReader::read_file(path)?;
         let reference = reference_path
-            .map(statguard_io::DataReader::read_file)
+            .map(statguardian_io::DataReader::read_file)
             .transpose()?;
         Ok(self.execute(&df, reference.as_ref()))
     }
@@ -43,8 +43,8 @@ impl Engine {
         &self,
         path: &str,
         batch_size: usize,
-    ) -> Result<Vec<ValidationReport>, statguard_io::IoError> {
-        let mut batcher = statguard_io::StreamingBatcher::new(path, batch_size);
+    ) -> Result<Vec<ValidationReport>, statguardian_io::IoError> {
+        let mut batcher = statguardian_io::StreamingBatcher::new(path, batch_size);
         let mut reports = Vec::new();
 
         while let Some(batch) = batcher.next_batch()? {
@@ -57,11 +57,11 @@ impl Engine {
 }
 
 /// Convenience function: parse DSL + compile + execute in one call.
-pub fn run(dsl: &str, df: &DataFrame) -> Result<ValidationReport, statguard_core::CoreError> {
-    let pairs = statguard_core::parse_and_compile(dsl)?;
+pub fn run(dsl: &str, df: &DataFrame) -> Result<ValidationReport, statguardian_core::CoreError> {
+    let pairs = statguardian_core::parse_and_compile(dsl)?;
     // Use first contract
     let (contract, dag) = pairs.into_iter().next().ok_or_else(|| {
-        statguard_core::CoreError::Compile {
+        statguardian_core::CoreError::Compile {
             message: "no datasets defined in DSL".into(),
         }
     })?;
@@ -135,7 +135,7 @@ dataset users {
 
         // All schema checks should pass (maybe quality violations remain)
         let blocking: Vec<_> = report.violations.iter()
-            .filter(|v| v.severity == statguard_core::ast::Severity::Blocking)
+            .filter(|v| v.severity == statguardian_core::ast::Severity::Blocking)
             .collect();
         assert!(blocking.is_empty(), "blocking violations on clean data: {blocking:?}");
     }
