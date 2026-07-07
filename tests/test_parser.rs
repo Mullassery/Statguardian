@@ -1,7 +1,7 @@
 /// Unit tests for statguard-core parser
 /// Tests DSL parsing, AST generation, validation rules, and error handling
 
-use statguard_core::parse_and_compile;
+use statguardian_core::parse_and_compile;
 
 #[test]
 fn test_parse_simple_dataset() {

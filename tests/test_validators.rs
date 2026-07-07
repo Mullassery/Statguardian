@@ -2,8 +2,8 @@
 /// Tests schema validation with Polars DataFrames
 
 use polars::prelude::*;
-use statguard_core::parse_and_compile;
-use statguard_engine::Engine;
+use statguardian_core::parse_and_compile;
+use statguardian_engine::Engine;
 
 #[test]
 fn test_parser_and_engine_basic() {

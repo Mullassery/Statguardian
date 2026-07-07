@@ -1,5 +1,5 @@
 [package]
-name    = "statguard-integration-tests"
+name    = "statguardian-integration-tests"
 version = "0.1.0"
 edition = "2021"
 publish = false
@@ -21,7 +21,7 @@ name = "test_security"
 path = "test_security.rs"
 
 [dev-dependencies]
-statguard-core    = { path = "../crates/statguard-core" }
-statguard-engine  = { path = "../crates/statguard-engine" }
+statguardian-core    = { path = "../crates/statguardian-core" }
+statguardian-engine  = { path = "../crates/statguardian-engine" }
 polars            = { workspace = true }
 serde_json        = { workspace = true }

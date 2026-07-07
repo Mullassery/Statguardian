@@ -2,8 +2,8 @@
 /// These tests run against the statguard-engine crate.
 
 use polars::prelude::*;
-use statguard_core::parse_and_compile;
-use statguard_engine::Engine;
+use statguardian_core::parse_and_compile;
+use statguardian_engine::Engine;
 
 fn make_clean_df() -> DataFrame {
     df!(
