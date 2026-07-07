@@ -8,7 +8,6 @@
 /// Pass `version = Some(n)` to read a specific Delta version.
 /// Pass `as_of_timestamp = Some(ms)` to restore the table as of a Unix-epoch
 /// timestamp in milliseconds.
-
 use polars::prelude::*;
 use serde::Deserialize;
 use std::path::Path;
@@ -202,7 +201,7 @@ impl DeltaReader {
     }
 }
 
-fn url_decode(s: &str) -> std::borrow::Cow<str> {
+fn url_decode(s: &str) -> std::borrow::Cow<'_, str> {
     if s.contains('%') {
         // Minimal percent-decoding for common cases
         std::borrow::Cow::Owned(s.replace("%20", " ").replace("%3D", "=").replace("%2F", "/"))

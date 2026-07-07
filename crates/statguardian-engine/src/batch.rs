@@ -272,7 +272,7 @@ fn detect_outliers(column: &str, method: &str, severity: &Severity, df: &DataFra
     let float_s = match s.cast(&DataType::Float64) { Ok(f) => f, Err(_) => return vec![] };
     let ca      = match float_s.f64() { Ok(c) => c, Err(_) => return vec![] };
 
-    let mut vals: Vec<(usize, f64)> = ca.iter().enumerate()
+    let vals: Vec<(usize, f64)> = ca.iter().enumerate()
         .filter_map(|(i, v)| v.map(|x| (i, x)))
         .collect();
 

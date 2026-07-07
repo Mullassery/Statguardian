@@ -47,23 +47,20 @@ fn parse_dataset(pair: pest::iterators::Pair<Rule>) -> CoreResult<DataContract> 
     let mut contract = DataContract::new(name);
 
     for section in inner {
-        match section.as_rule() {
-            Rule::section => {
-                let inner = section.into_inner().next().unwrap();
-                match inner.as_rule() {
-                    Rule::schema_section => contract.schema = parse_schema(inner)?,
-                    Rule::quality_section => {
-                        let (qr, ccr) = parse_quality(inner)?;
-                        contract.quality_rules = qr;
-                        contract.cross_column_rules = ccr;
-                    }
-                    Rule::stats_section   => contract.stats_rules   = parse_stats(inner)?,
-                    Rule::anomaly_section => contract.anomaly_rules  = parse_anomalies(inner)?,
-                    Rule::stream_section  => contract.stream_config  = Some(parse_stream(inner)?),
-                    _ => {}
+        if section.as_rule() == Rule::section {
+            let inner = section.into_inner().next().unwrap();
+            match inner.as_rule() {
+                Rule::schema_section => contract.schema = parse_schema(inner)?,
+                Rule::quality_section => {
+                    let (qr, ccr) = parse_quality(inner)?;
+                    contract.quality_rules = qr;
+                    contract.cross_column_rules = ccr;
                 }
+                Rule::stats_section   => contract.stats_rules   = parse_stats(inner)?,
+                Rule::anomaly_section => contract.anomaly_rules  = parse_anomalies(inner)?,
+                Rule::stream_section  => contract.stream_config  = Some(parse_stream(inner)?),
+                _ => {}
             }
-            _ => {}
         }
     }
 

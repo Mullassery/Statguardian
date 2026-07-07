@@ -1,6 +1,5 @@
 /// Security tests for TIER 1 fixes
 /// Tests ReDoS prevention, input validation, and resource limits
-
 use statguardian_core::parse_and_compile;
 
 #[test]

@@ -114,11 +114,10 @@ fn evaluate_cross_column_rule(df: &DataFrame, rule: &CrossColumnRule) -> Vec<Vio
     let mut failing_rows: Vec<usize> = Vec::new();
 
     for i in 0..n {
-        if row_matches(&when_series, i, &rule.when_op, &rule.when_value) {
-            if !row_matches(&assert_series, i, &rule.assert_op, &rule.assert_value) {
+        if row_matches(&when_series, i, &rule.when_op, &rule.when_value)
+            && !row_matches(&assert_series, i, &rule.assert_op, &rule.assert_value) {
                 failing_rows.push(i);
             }
-        }
     }
 
     if failing_rows.is_empty() {

@@ -113,7 +113,7 @@ impl Optimizer {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::ast::{ComparisonOp, MetricFn, Severity};
+    use crate::ast::Severity;
     use crate::compiler::dag::DagNode;
 
     #[test]

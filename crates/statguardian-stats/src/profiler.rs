@@ -42,7 +42,7 @@ impl Profiler {
         let columns: Vec<ColumnProfile> = df
             .get_columns()
             .par_iter()
-            .map(|col| profile_column(col))
+            .map(profile_column)
             .collect();
 
         DatasetProfile { row_count, column_count, columns }

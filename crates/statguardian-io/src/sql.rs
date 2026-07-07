@@ -30,7 +30,6 @@
 /// official drivers require proprietary ODBC/JDBC components (non-open-source).
 /// If you need them, use the Python `execute_sql()` API with connectorx and
 /// the appropriate ODBC driver installed separately.
-
 use polars::prelude::*;
 use crate::{IoError, IoResult};
 
@@ -46,7 +45,7 @@ pub enum SqlBackend {
 
 impl SqlBackend {
     pub fn from_url(url: &str) -> Self {
-        let scheme = url.splitn(2, "://").next().unwrap_or("").to_lowercase();
+        let scheme = url.split("://").next().unwrap_or("").to_lowercase();
         match scheme.as_str() {
             "postgresql" | "postgres" | "pg" => SqlBackend::Postgres,
             "mysql" | "mariadb" => SqlBackend::Mysql,
@@ -75,7 +74,7 @@ impl SqlReader {
     /// Execute `query` against `connection_url` and return a DataFrame.
     ///
     /// This is a synchronous wrapper — it creates an internal Tokio runtime.
-    pub fn read(query: &str, connection_url: &str) -> IoResult<DataFrame> {
+    pub fn read(_query: &str, connection_url: &str) -> IoResult<DataFrame> {
         match SqlBackend::from_url(connection_url) {
             SqlBackend::PythonLayer(scheme) => Err(IoError::UnsupportedFormat(format!(
                 "'{scheme}' is not supported in the Rust SQL layer. \

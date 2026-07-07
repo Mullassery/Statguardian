@@ -7,15 +7,11 @@ use crate::compiler::optimizer::Optimizer;
 use crate::error::CoreResult;
 
 /// Compiles a `DataContract` into an optimized `ExecutionDag`.
+#[derive(Default)]
 pub struct Compiler {
     optimizer: Optimizer,
 }
 
-impl Default for Compiler {
-    fn default() -> Self {
-        Self { optimizer: Optimizer::default() }
-    }
-}
 
 impl Compiler {
     pub fn new() -> Self {

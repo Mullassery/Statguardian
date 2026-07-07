@@ -12,7 +12,6 @@
 ///
 /// # Snapshot time-travel
 /// Pass `snapshot_id = Some(id)` to read a specific snapshot instead of `current-snapshot-id`.
-
 use polars::prelude::*;
 use serde::Deserialize;
 use std::path::Path;
@@ -180,7 +179,7 @@ fn load_metadata(table_path: &str) -> IoResult<IcebergMetadata> {
 
 fn find_latest_metadata_file(metadata_dir: &Path) -> IoResult<std::path::PathBuf> {
     let mut candidates: Vec<(u64, std::path::PathBuf)> = std::fs::read_dir(metadata_dir)
-        .map_err(|e| IoError::Io(e))?
+        .map_err(IoError::Io)?
         .filter_map(|e| e.ok())
         .filter_map(|e| {
             let name = e.file_name();
@@ -205,7 +204,6 @@ fn find_latest_metadata_file(metadata_dir: &Path) -> IoResult<std::path::PathBuf
     })
 }
 
-use std::cmp::Reverse;
 
 // ── Snapshot resolution ───────────────────────────────────────────────────────
 
@@ -315,7 +313,7 @@ fn collect_from_json_manifest_list(path: &str, table_path: &str) -> IoResult<Vec
 fn collect_manifests_from_directory(table_path: &str) -> IoResult<Vec<IcebergDataFile>> {
     let metadata_dir = Path::new(table_path).join("metadata");
     let manifest_files: Vec<_> = std::fs::read_dir(&metadata_dir)
-        .map_err(|e| IoError::Io(e))?
+        .map_err(IoError::Io)?
         .filter_map(|e| e.ok())
         .filter(|e| {
             let name = e.file_name();

@@ -15,7 +15,6 @@
 ///     }
 /// }
 /// ```
-
 use std::collections::HashMap;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
@@ -55,7 +54,7 @@ impl StreamingWindow {
 
     pub fn add_event(&mut self, timestamp: SystemTime, event: String) -> Result<(), String> {
         if timestamp < self.start_time || timestamp > self.end_time {
-            return Err(format!("Event timestamp outside window bounds"));
+            return Err("Event timestamp outside window bounds".to_string());
         }
         self.events.push((timestamp, event));
         Ok(())

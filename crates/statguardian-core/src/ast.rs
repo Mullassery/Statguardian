@@ -149,18 +149,15 @@ impl std::fmt::Display for ComparisonOp {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
+#[derive(Default)]
 pub enum Severity {
     Info,
     Warning,
+    #[default]
     Error,
     Blocking,
 }
 
-impl Default for Severity {
-    fn default() -> Self {
-        Severity::Error
-    }
-}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct QualityRule {

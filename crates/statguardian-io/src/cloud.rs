@@ -30,7 +30,6 @@
 /// s3://my-bucket/events/year=2026/month=06/*.parquet
 /// gs://my-bucket/data/**/*.parquet
 /// ```
-
 use polars::prelude::*;
 use crate::{IoError, IoResult};
 

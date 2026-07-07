@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use crate::ast::{ComparisonOp, MetricFn, Severity, StatFn, AnomalyFn};
+use crate::ast::{ComparisonOp, MetricFn, Severity, StatFn};
 
 /// A single node in the execution DAG.
 /// Each node is a pure, side-effect-free unit of work against a column or dataset.
