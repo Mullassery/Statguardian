@@ -5,11 +5,26 @@ use indexmap::IndexMap;
 use crate::ast::*;
 use crate::error::{CoreError, CoreResult};
 
+// SECURITY: Prevent ReDoS (Regular Expression Denial of Service) attacks
+const MAX_INPUT_SIZE: usize = 10 * 1024 * 1024; // 10MB input limit
+
 #[derive(Parser)]
 #[grammar = "src/parser/grammar.pest"]
 pub struct ContractParser;
 
 pub fn parse(input: &str) -> CoreResult<Vec<DataContract>> {
+    // Check input size to prevent ReDoS vulnerabilities
+    if input.len() > MAX_INPUT_SIZE {
+        return Err(CoreError::Parse(Box::new(
+            pest::error::Error::<Rule>::new_from_pos(
+                pest::error::ErrorVariant::CustomError {
+                    message: format!("Input exceeds maximum size of {} bytes", MAX_INPUT_SIZE),
+                },
+                pest::Position::new(input, 0).unwrap(),
+            ),
+        )));
+    }
+
     let pairs = ContractParser::parse(Rule::contract, input)
         .map_err(|e| CoreError::Parse(Box::new(e)))?;
 
