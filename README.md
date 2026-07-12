@@ -931,3 +931,22 @@ MIT © 2026 Georgi Mammen Mullassery
 
 
 
+
+## 🔒 Security & Error Handling
+
+Statguardian includes:
+
+- **Data Quality Validation**: Clear error messages for schema mismatches and data issues
+- **DSL Validation**: Safe parsing of quality rules with size limits and nesting depth checks
+- **Security Audit**: Comprehensive guide in `RUST_SAFETY_GUIDE.md`
+- **Detailed Error Messages**: See `python/statguardian/error_messages.py` for guidance
+
+### Security Roadmap
+
+- ✅ v1.0.0: Security audit completed, dependencies pinned
+- ✅ v1.0.1: DSL validation with size/nesting limits
+- 🔄 v1.1.0: Advanced quality rule composition
+- 🔄 v1.2.0: Performance optimization for large datasets
+- 📋 v1.3.0: Distributed validation support
+
+Full security roadmap: [ROADMAP.md](ROADMAP.md)
