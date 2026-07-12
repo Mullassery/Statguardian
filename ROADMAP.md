@@ -46,6 +46,37 @@
 
 ---
 
+## 🔍 Competitive Gaps vs Market
+
+Based on analysis of data quality market (Great Expectations, dbt, Soda, Talend), these gaps exist:
+
+### CRITICAL (Blocks Enterprise Adoption)
+- **No ML anomaly detection** — Competitors (Soda) claim 70% false positive reduction with ML
+  - **Market Impact:** Alert fatigue is #1 complaint (30-50 false positives/day)
+  - **Recommended Fix:** ML anomaly detection in **v1.1.0 (Q3 2026)** is critical
+  - **Why:** This is the primary reason teams choose paid tiers over rule-based tools
+
+- **Batch-only validation** — Cannot validate streaming data (Kafka, CDC, real-time)
+  - **Market Impact:** Real-time data teams cannot use Statguardian
+  - **Recommended Fix:** Streaming support in v1.3.0 (Q1 2027)
+  - **Why:** Streaming is fastest-growing segment in data quality
+
+### HIGH (Reduces Addressable Market)
+- **Single warehouse** — Cannot track cross-warehouse lineage
+  - **Competitor Advantage:** Great Expectations + dbt can span Snowflake/BigQuery/Postgres
+  - **Timeline:** v1.3.0 (Q1 2027)
+
+- **No cascading alert prevention** — One table failure triggers 50+ downstream alerts
+  - **Market Impact:** Teams manually correlate alerts instead of auto-routing
+  - **Timeline:** v1.2.0 (Q4 2026)
+
+### MEDIUM (Nice-to-Have)
+- **No native Slack/PagerDuty alerts** — Only CLI output
+  - **Competitor Advantage:** Great Exp, Soda integrate with monitoring platforms
+  - **Timeline:** v1.1.0 (Q3 2026)
+
+---
+
 ## 📋 Roadmap
 
 ### v1.1.0 (Q3 2026) — Advanced Quality Rules
