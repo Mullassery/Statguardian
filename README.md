@@ -6,6 +6,8 @@
 [![PyPI](https://img.shields.io/badge/PyPI-statguardian-blue)](https://pypi.org/project/statguardian/)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue)]()
 [![Rust](https://img.shields.io/badge/built%20with-Rust-orange.svg)](https://www.rust-lang.org)
+![Status: v2.2 In Progress](https://img.shields.io/badge/Status-v2.2%20In%20Progress-yellow)
+![25 Tests Passing](https://img.shields.io/badge/Tests-25%20Passing-brightgreen)
 
 ---
 
