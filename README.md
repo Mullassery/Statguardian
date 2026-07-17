@@ -197,7 +197,7 @@ if report.has_drift:
 - **Multiple data sources** (S3, GCS, ADLS, local filesystem, HTTP)
 - **Streaming support** — Real-time validation
 
-### 🔒 Enterprise-Ready
+### 🔒 Production-Ready
 - **Privacy** — Differential privacy support
 - **Audit logging** — Complete audit trail
 - **RBAC** — Role-based access control
