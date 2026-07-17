@@ -61,6 +61,12 @@ dependencies    = [
 ]
 
 [project.optional-dependencies]
+# Development and testing
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+]
+
 # Data frame conversion
 pandas = ["pandas==2.1.0", "pyarrow==14.0.1"]
 
